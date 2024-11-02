@@ -21,13 +21,45 @@
     </header>
     <main>
         <section>
-            <h2>Get Started</h2>
-            <p>Manage your finances effectively with our easy-to-use tools.</p>
+            <h2>Connect Your Bank Account</h2>
+            <button id="link-button">Connect a Bank Account</button>
         </section>
     </main>
     <footer>
         <p>&copy; 2024 Budget Manager</p>
     </footer>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <script>
+        const linkHandler = Plaid.create({
+            clientName: 'Your Budget Manager',
+            env: 'sandbox',
+            key: 'YOUR_PUBLIC_KEY', // Public key from your Plaid dashboard
+            product: ['transactions'],
+            onSuccess: (public_token, metadata) => {
+                // Send the public token to your backend to exchange for an access token
+                fetch('/exchange_public_token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ public_token }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Access token:', data.access_token);
+                    // Redirect to the dashboard after successful connection
+                    window.location.href = 'dashboard.html';
+                });
+            },
+            onExit: (err, metadata) => {
+                // Optional: Handle the exit
+                console.log('Exit:', err, metadata);
+            },
+        });
+
+        document.getElementById('link-button').onclick = function() {
+            linkHandler.open();
+        };
+    </script>
 </body>
 </html>
-

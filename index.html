@@ -30,11 +30,13 @@
     </footer>
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
     <script>
+        const userId = 'USER_ID'; // Replace with unique user identifier logic
+
         const linkHandler = Plaid.create({
             clientName: 'Your Budget Manager',
             env: 'sandbox',
             key: 'YOUR_PUBLIC_KEY', // Public key from your Plaid dashboard
-            product: ['transactions'],
+            product: ['transactions', 'auth'],
             onSuccess: (public_token, metadata) => {
                 // Send the public token to your backend to exchange for an access token
                 fetch('/exchange_public_token', {
@@ -42,7 +44,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ public_token }),
+                    body: JSON.stringify({ public_token, user_id: userId }),
                 })
                 .then(response => response.json())
                 .then(data => {
